@@ -6,19 +6,19 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.forms import model_to_dict
 
-# class WomenAPIView(generics.ListAPIView):
-#     queryset = Women.objects.all()
-#     serializer_class = WomenSerializer
 
 class WomenAPIView(APIView):
     def get(self, request):
-        list_women = Women.objects.all().values()
+        list_women = Women.objects.all()
         
         return Response({
-            'posts': list(list_women)
+            'posts': WomenSerializer(list_women, many=True).data
         })
         
     def post(self, request):
+        serializer = WomenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
         post_new = Women.objects.create(
             title = request.data['title'],
             content = request.data['content'],
@@ -26,5 +26,5 @@ class WomenAPIView(APIView):
         )
         
         return Response({
-            'post': model_to_dict(post_new)
+            'post': WomenSerializer(post_new).data
         })
